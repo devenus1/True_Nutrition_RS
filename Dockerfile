@@ -21,12 +21,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install runpod explicitly if not in requirements 
 RUN pip install --no-cache-dir runpod
 
-# Copy all necessary application files
-COPY . .  
+# Copy source files
+COPY src/ ./src/
 
 # Expose port for API
 EXPOSE 8080
 
 
 # Set the command to run the handler.py which starts the Runpod serverless worker
-CMD ["python", "-u", "handler.py"]
+CMD ["python", "-u", "./src/handler.py"]
