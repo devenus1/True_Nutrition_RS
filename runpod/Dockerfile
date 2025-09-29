@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage caching
-COPY requirements.txt .
+COPY src/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r src/requirements.txt
