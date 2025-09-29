@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy source files
 COPY src/ ./src/
 
+# Create symlink for python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 # Install system dependencies if needed (e.g., for cryptography or other libs)
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -19,7 +22,10 @@ RUN apt-get update && apt-get install -y \
 COPY src/requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r src/requirements.txt
+# Upgrade pip and install dependencies
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install --upgrade -r src/requirements.txt --no-cache-dir
+
 
 # Install runpod explicitly if not in requirements 
 RUN pip install --no-cache-dir runpod
