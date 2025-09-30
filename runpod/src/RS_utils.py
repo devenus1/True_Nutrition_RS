@@ -291,6 +291,7 @@ def encode_state_features(email, response_id):
         logger.error(f"State encoding error: {str(e)}")
         return None
 
+
 def format_recommendation(action, variant_ids, categories):
     protein_mix = []
     total_percent = sum(action)
