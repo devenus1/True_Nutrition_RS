@@ -18,7 +18,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        RotatingFileHandler("logs/application.log", maxBytes=5*1024*1024, backupCount=7),
+        RotatingFileHandler("../logs/application.log", maxBytes=5*1024*1024, backupCount=7),
         logging.StreamHandler()
     ]
 )
@@ -127,5 +127,5 @@ def handler(job):
         logger.error(f"Error in handler: {str(e)}\n{traceback.format_exc()}")
         return {"error": f"Failed to generate recommendations: {str(e)}"}
 
-runpod.serverless.start({"handler": handler})
+# runpod.serverless.start({"handler": handler})
 

@@ -5,7 +5,10 @@ FROM runpod/base:0.4.0-cuda11.8.0
 WORKDIR /app
 
 # Copy source files
-COPY src/ ./src/
+COPY runpod/src/ ./src/
+
+# Copy model artifacts
+COPY runpod/models/ ./models/
 
 # Create symlink for python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -19,12 +22,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage caching
-COPY src/requirements.txt .
+COPY runpod/src/requirements.txt .
 
 # Install Python dependencies
 # Upgrade pip and install dependencies
 RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install --upgrade -r src/requirements.txt --no-cache-dir
+    python3 -m pip install --upgrade -r runpod/src/requirements.txt --no-cache-dir
 
 
 # Install runpod explicitly if not in requirements 

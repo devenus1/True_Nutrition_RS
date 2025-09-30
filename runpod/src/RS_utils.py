@@ -49,31 +49,81 @@ class CSACActor(nn.Module):
         action_normalized = torch.softmax(action_squashed * 2.0, dim=-1) * self.max_action
         return action_normalized
 
+# def get_snowflake_connection(max_retries=3, retry_delay=30):
+#     for attempt in range(1, max_retries + 1):
+#         try:
+#             with open("rsa_key_coach_snow.p8", "rb") as key_file:
+#                 private_key = serialization.load_pem_private_key(
+#                     key_file.read(),
+#                     password=os.getenv("SNOWFLAKE_SSH_PASS").encode(),
+#                     backend=default_backend()
+#                 )
+#             private_key_bytes = private_key.private_bytes(
+#                 encoding=serialization.Encoding.DER,
+#                 format=serialization.PrivateFormat.PKCS8,
+#                 encryption_algorithm=serialization.NoEncryption()
+#             )
+#             logger.info(f"Attempt {attempt} to connect to Snowflake...")
+#             conn = snowflake.connector.connect(
+#                 user=os.getenv("SNOWFLAKE_USER"),
+#                 private_key=private_key_bytes,
+#                 account=os.getenv("SNOWFLAKE_ACCOUNT"),
+#                 warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
+#                 database=os.getenv("SNOWFLAKE_DATABASE"),
+#                 schema=os.getenv("SNOWFLAKE_SCHEMA"),
+#             )
+#             logger.info("Snowflake connection established successfully.")
+#             return conn
+#         except snowflake.connector.errors.DatabaseError as e:
+#             err_msg = str(e)
+#             logger.warning(f"❌ Snowflake connection failed (attempt {attempt}): {err_msg}")
+#             if "JWT token is invalid" in err_msg or "Failed to authenticate" in err_msg:
+#                 if attempt < max_retries:
+#                     logger.info(f"🔁 Waiting {retry_delay} seconds before retrying...")
+#                     time.sleep(retry_delay)
+#                 else:
+#                     logger.error("❌ Max retries exceeded. Could not connect to Snowflake.")
+#                     raise
+#             else:
+#                 raise
+
+# conn = None
+
 def get_snowflake_connection(max_retries=3, retry_delay=30):
     for attempt in range(1, max_retries + 1):
         try:
-            with open("rsa_key_coach_snow.p8", "rb") as key_file:
-                private_key = serialization.load_pem_private_key(
-                    key_file.read(),
-                    password=os.getenv("SNOWFLAKE_SSH_PASS").encode(),
-                    backend=default_backend()
-                )
-            private_key_bytes = private_key.private_bytes(
+            # Load RSA private key directly from environment variable
+            private_key_str = os.getenv("rsa_key_coach_snow")
+            if not private_key_str:
+                raise ValueError("❌ rsa_key_coach_snow not found in environment variables.")
+
+            # Convert string with "\n" into proper PEM format
+            private_key_bytes = private_key_str.encode().replace(b"\\n", b"\n")
+
+            private_key = serialization.load_pem_private_key(
+                private_key_bytes,
+                password=os.getenv("SNOWFLAKE_SSH_PASS").encode(),
+                backend=default_backend()
+            )
+
+            private_key_der = private_key.private_bytes(
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption()
             )
+
             logger.info(f"Attempt {attempt} to connect to Snowflake...")
             conn = snowflake.connector.connect(
                 user=os.getenv("SNOWFLAKE_USER"),
-                private_key=private_key_bytes,
+                private_key=private_key_der,
                 account=os.getenv("SNOWFLAKE_ACCOUNT"),
                 warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
                 database=os.getenv("SNOWFLAKE_DATABASE"),
                 schema=os.getenv("SNOWFLAKE_SCHEMA"),
             )
-            logger.info("Snowflake connection established successfully.")
+            logger.info("✅ Snowflake connection established successfully.")
             return conn
+
         except snowflake.connector.errors.DatabaseError as e:
             err_msg = str(e)
             logger.warning(f"❌ Snowflake connection failed (attempt {attempt}): {err_msg}")
@@ -88,6 +138,7 @@ def get_snowflake_connection(max_retries=3, retry_delay=30):
                 raise
 
 conn = None
+
 
 def get_or_refresh_connection():
     global conn
