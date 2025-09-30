@@ -53,7 +53,7 @@ try:
     state_dim = 120 
     action_dim = len(variant_ids)
     actor = CSACActor(state_dim=state_dim, action_dim=action_dim)
-    with open('models/Improved_csac_actor.pth', 'rb') as f:
+    with open('../models/Improved_csac_actor.pth', 'rb') as f:
         state_dict = torch.load(f, map_location=torch.device('cpu'))
         actor.load_state_dict(state_dict)
     actor.eval()
@@ -127,5 +127,16 @@ def handler(job):
         logger.error(f"Error in handler: {str(e)}\n{traceback.format_exc()}")
         return {"error": f"Failed to generate recommendations: {str(e)}"}
 
-# runpod.serverless.start({"handler": handler})
+runpod.serverless.start({"handler": handler})
 
+# job_input = {
+#     "input": {
+#         "email": "firedudepete@gmail.com",
+#         "response_id": "ybhfzyr0tua0f2bqo2iybhfz55sizs3b"
+#     }
+# }
+
+# if __name__ == "__main__":
+#     output = handler(job_input)
+#     print("Handler Output:")
+#     print(output)
