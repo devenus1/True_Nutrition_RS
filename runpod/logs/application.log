@@ -1,0 +1,116 @@
+2025-09-29 19:32:00,159 - RS_utils - INFO - Attempt 1 to connect to Snowflake...
+2025-09-29 19:32:00,166 - snowflake.connector.connection - INFO - Snowflake Connector for Python Version: 3.10.1, Python Version: 3.11.0, Platform: Windows-10-10.0.26100-SP0
+2025-09-29 19:32:00,167 - snowflake.connector.connection - INFO - This connection is in OCSP Fail Open Mode. TLS Certificates would be checked for validity and revocation status. Any other Certificate Revocation related exceptions or OCSP Responder failures would be disregarded in favor of connectivity.
+2025-09-29 19:32:02,632 - RS_utils - INFO - Snowflake connection established successfully.
+2025-09-29 19:32:03,046 - snowflake.connector.cursor - INFO - Number of results in first chunk: 43
+2025-09-29 19:32:03,056 - handler - INFO - Variant data loaded successfully
+2025-09-29 19:32:03,079 - handler - INFO - Actor model loaded successfully with state_dim=120, action_dim=43
+2025-09-29 19:32:03,522 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:08,307 - snowflake.connector.cursor - INFO - Number of results in first chunk: 2
+2025-09-29 19:32:16,265 - snowflake.connector.cursor - INFO - Number of results in first chunk: 3
+2025-09-29 19:32:16,811 - RS_utils - WARNING - State dimension is 38, expected 120. Padding/truncating...
+2025-09-29 19:32:17,495 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:18,117 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:18,729 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:19,347 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:19,763 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:20,362 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:20,902 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:21,402 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:22,314 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:22,990 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:23,441 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:24,073 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:24,981 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:25,462 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:25,903 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:26,363 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:26,792 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:27,164 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:27,561 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:27,984 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:28,638 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:29,083 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:29,442 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:29,845 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:30,204 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:30,568 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:31,002 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:31,423 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:31,831 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:32,248 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:32,679 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:33,194 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:33,562 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:33,964 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:34,365 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:34,745 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:35,165 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:35,545 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:35,923 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:36,304 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:36,685 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:37,096 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:37,523 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:37,884 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:38,243 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:38,643 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:39,004 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:39,427 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:39,826 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:40,437 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:40,874 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:41,357 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:41,864 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:42,386 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:42,889 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:43,363 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:43,723 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:44,144 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:44,519 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:44,923 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:45,321 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:45,749 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:46,323 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:46,702 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:47,103 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:47,464 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:48,419 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:48,832 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:49,243 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:49,692 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:50,267 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:50,684 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:51,289 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:51,763 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:52,317 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:52,927 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+
+
+
+2025-09-29 19:32:53,386 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:53,956 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:54,402 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:54,824 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:55,304 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:55,725 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:56,124 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:56,501 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:56,905 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:57,314 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:57,316 - handler - INFO - Protein mix item: {'variant_id': '975', 'percent': 8.494405446458979, 'category': 'Milk protein', 'item_name': 'Micellar Casein (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,317 - handler - INFO - Protein mix item: {'variant_id': '976', 'percent': 7.374101875495607, 'category': 'Specialty protein', 'item_name': 'Whole Egg Protein (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,389 - handler - INFO - Protein mix item: {'variant_id': '982', 'percent': 5.450500546616851, 'category': 'Specialty protein', 'item_name': 'Hemp Protein Powder (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,390 - handler - INFO - Protein mix item: {'variant_id': '1150', 'percent': 9.218621251820908, 'category': 'Core protein', 'item_name': 'Pea Protein Isolate non-GMO (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,392 - handler - INFO - Protein mix item: {'variant_id': '1157', 'percent': 5.901902540144068, 'category': 'Fiber', 'item_name': 'Psyllium Husk Fiber (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,394 - handler - INFO - Protein mix item: {'variant_id': '1178', 'percent': 5.077076702127914, 'category': 'Core protein', 'item_name': 'Hydrolyzed Whey Protein Ultra Grade (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,396 - handler - INFO - Protein mix item: {'variant_id': '19718', 'percent': 10.41236221547882, 'category': 'Core protein', 'item_name': 'Keto MCT on Collagen (1lb.)'}, type: <class 'dict'>
+2025-09-29 19:32:57,847 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:32:59,891 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+2025-09-29 19:33:08,923 - snowflake.connector.cursor - INFO - Number of results in first chunk: 1
+
+2025-09-29 19:33:08,926 - snowflake.connector.connection - INFO - closed
+
+2025-09-29 19:33:08,927 - snowflake.connector.connection - INFO - No async queries seem to be running, deleting session
+
+
