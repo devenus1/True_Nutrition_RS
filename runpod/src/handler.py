@@ -53,7 +53,7 @@ try:
     state_dim = 120 
     action_dim = len(variant_ids)
     actor = CSACActor(state_dim=state_dim, action_dim=action_dim)
-    with open('../models/Improved_csac_actor.pth', 'rb') as f:
+    with open('/app/models/Improved_csac_actor.pth', 'rb') as f:
         state_dict = torch.load(f, map_location=torch.device('cpu'))
         actor.load_state_dict(state_dict)
     actor.eval()
