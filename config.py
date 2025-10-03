@@ -48,7 +48,15 @@ class Settings(BaseSettings):
     
     recommend_beyond_constraints_flag: bool
 
+    # class Config:
+    #     env_file = ".env"
+
+    # Add the rsa_key_coach_snow field here
+    rsa_key_coach_snow: str 
+
     class Config:
         env_file = ".env"
+        extra = "forbid"  
+
 
 settings = Settings()
