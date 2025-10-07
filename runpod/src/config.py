@@ -1,5 +1,13 @@
 # config.py
+
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+import os
+
+# Load .env from the root directory (two levels up from src)
+# This path assumes config.py is in 'runpod/src'
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env')
+load_dotenv(dotenv_path=dotenv_path)
 
 class Settings(BaseSettings):
     snowflake_user: str
@@ -49,9 +57,10 @@ class Settings(BaseSettings):
     recommend_beyond_constraints_flag: bool
 
     # class Config:
-    #     env_file = ".env"
+        # env_file = ".env"
+        # pass
 
-    # Add the rsa_key_coach_snow field here
+    #Add the rsa_key_coach_snow field here
     rsa_key_coach_snow: str 
 
     class Config:

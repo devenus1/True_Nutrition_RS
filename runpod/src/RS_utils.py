@@ -13,6 +13,13 @@ from cryptography.hazmat.primitives import serialization
 import holidays
 import json
 import time
+from config import settings
+import traceback
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -49,45 +56,6 @@ class CSACActor(nn.Module):
         action_normalized = torch.softmax(action_squashed * 2.0, dim=-1) * self.max_action
         return action_normalized
 
-# def get_snowflake_connection(max_retries=3, retry_delay=30):
-#     for attempt in range(1, max_retries + 1):
-#         try:
-#             with open("rsa_key_coach_snow.p8", "rb") as key_file:
-#                 private_key = serialization.load_pem_private_key(
-#                     key_file.read(),
-#                     password=os.getenv("SNOWFLAKE_SSH_PASS").encode(),
-#                     backend=default_backend()
-#                 )
-#             private_key_bytes = private_key.private_bytes(
-#                 encoding=serialization.Encoding.DER,
-#                 format=serialization.PrivateFormat.PKCS8,
-#                 encryption_algorithm=serialization.NoEncryption()
-#             )
-#             logger.info(f"Attempt {attempt} to connect to Snowflake...")
-#             conn = snowflake.connector.connect(
-#                 user=os.getenv("SNOWFLAKE_USER"),
-#                 private_key=private_key_bytes,
-#                 account=os.getenv("SNOWFLAKE_ACCOUNT"),
-#                 warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
-#                 database=os.getenv("SNOWFLAKE_DATABASE"),
-#                 schema=os.getenv("SNOWFLAKE_SCHEMA"),
-#             )
-#             logger.info("Snowflake connection established successfully.")
-#             return conn
-#         except snowflake.connector.errors.DatabaseError as e:
-#             err_msg = str(e)
-#             logger.warning(f"❌ Snowflake connection failed (attempt {attempt}): {err_msg}")
-#             if "JWT token is invalid" in err_msg or "Failed to authenticate" in err_msg:
-#                 if attempt < max_retries:
-#                     logger.info(f"🔁 Waiting {retry_delay} seconds before retrying...")
-#                     time.sleep(retry_delay)
-#                 else:
-#                     logger.error("❌ Max retries exceeded. Could not connect to Snowflake.")
-#                     raise
-#             else:
-#                 raise
-
-# conn = None
 
 def get_snowflake_connection(max_retries=3, retry_delay=30):
     for attempt in range(1, max_retries + 1):
@@ -95,7 +63,7 @@ def get_snowflake_connection(max_retries=3, retry_delay=30):
             # Load RSA private key directly from environment variable
             private_key_str = os.getenv("rsa_key_coach_snow")
             if not private_key_str:
-                raise ValueError("❌ rsa_key_coach_snow not found in environment variables.")
+                raise ValueError(" rsa_key_coach_snow not found in environment variables.")
 
             # Convert string with "\n" into proper PEM format
             private_key_bytes = private_key_str.encode().replace(b"\\n", b"\n")
@@ -121,18 +89,18 @@ def get_snowflake_connection(max_retries=3, retry_delay=30):
                 database=os.getenv("SNOWFLAKE_DATABASE"),
                 schema=os.getenv("SNOWFLAKE_SCHEMA"),
             )
-            logger.info("✅ Snowflake connection established successfully.")
+            logger.info("Snowflake connection established successfully.")
             return conn
 
         except snowflake.connector.errors.DatabaseError as e:
             err_msg = str(e)
-            logger.warning(f"❌ Snowflake connection failed (attempt {attempt}): {err_msg}")
+            logger.warning(f" Snowflake connection failed (attempt {attempt}): {err_msg}")
             if "JWT token is invalid" in err_msg or "Failed to authenticate" in err_msg:
                 if attempt < max_retries:
-                    logger.info(f"🔁 Waiting {retry_delay} seconds before retrying...")
+                    logger.info(f" Waiting {retry_delay} seconds before retrying...")
                     time.sleep(retry_delay)
                 else:
-                    logger.error("❌ Max retries exceeded. Could not connect to Snowflake.")
+                    logger.error("Max retries exceeded. Could not connect to Snowflake.")
                     raise
             else:
                 raise
@@ -151,6 +119,96 @@ def get_or_refresh_connection():
             logger.info("Connection lost, refreshing...")
             conn = get_snowflake_connection()
     return conn
+
+
+def convert_height_to_inches(height_str):
+    try:
+        if height_str == "Under 5 feet":
+            height_str = "4'11\""
+        if height_str == "Over 7 feet":
+            height_str = "7'1\""
+        feet, inches = height_str.split("'")
+        inches = inches.replace('"', '').strip()
+        return int(feet) * 12 + int(inches)
+    except (ValueError, AttributeError):
+        return None
+    except Exception as e:
+        logger.error(f"Error converting height to inches: {e}")
+        return None
+    
+    
+
+def extract_responses(typeform_item):
+    response_dict = {
+        "EMAIL": None,
+        "GENDER": None,
+        "AGE": None,
+        "HEIGHT": None,
+        "WEIGHT": None,
+        "BODYTYPE": None,
+        "BODYFAT": None,
+        "DIET": None,
+        "DIETRESTRICTIONS": None,
+        "MACROS": None,
+        "PRIMARYGOAL": None,
+        "SECONDARYGOAL": None,
+        "ACTIVITY": None,
+        "ACTIVITYLEVEL": None,
+        "INTENDEDUSE": None,
+        "FREQUENCY": None,
+        "MIXTIMING": None,
+        "HEALTHCONCERNS": None,
+        "CREATEDON": pd.to_datetime(typeform_item['submitted_at'])
+    }
+
+    for answer in typeform_item['answers']:
+        field_ref = answer['field']['ref']
+        if field_ref == settings.field_ref_email:
+            response_dict['EMAIL'] = answer.get('email', None)
+        elif field_ref == settings.field_ref_gender:
+            response_dict['GENDER'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_age:
+            response_dict['AGE'] = answer.get('number', None)
+        elif field_ref == settings.field_ref_height_inches:
+            height_str = answer.get('text', None)
+            response_dict['HEIGHT'] = convert_height_to_inches(height_str)
+        elif field_ref == settings.field_ref_weight:
+            response_dict['WEIGHT'] = answer.get('number', None)
+        elif field_ref == settings.field_ref_body_type:
+            response_dict['BODYTYPE'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_body_fat:
+            response_dict['BODYFAT'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_diet:
+            response_dict['DIET'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_diet_restrictions:
+            response_dict['DIETRESTRICTIONS'] = ', '.join(answer.get('choices', {}).get('labels', []))
+        elif field_ref == settings.field_ref_macros:
+            response_dict['MACROS'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_goal_primary:
+            response_dict['PRIMARYGOAL'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_goal_secondary:
+            response_dict['SECONDARYGOAL'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_activity:
+            response_dict['ACTIVITY'] = ', '.join(answer.get('choices', {}).get('labels', []))
+        elif field_ref == settings.field_ref_activity_level:
+            response_dict['ACTIVITYLEVEL'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_mix_intended_use:
+            response_dict['INTENDEDUSE'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_mix_frequency:
+            response_dict['FREQUENCY'] = answer.get('choice', {}).get('label', None)
+        elif field_ref == settings.field_ref_mix_timing:
+            response_dict['MIXTIMING'] = ', '.join(answer.get('choices', {}).get('labels', []))
+        elif field_ref == settings.field_ref_health_issues:
+            response_dict['HEALTHCONCERNS'] = ', '.join(answer.get('choices', {}).get('labels', []))
+
+    current_time = datetime.now()
+    response_dict['TNLINEITEMID'] = 0.0
+    response_dict['MIN PURCHASE TIMESTAMP'] = current_time
+
+    user_response_df = pd.DataFrame([response_dict])
+    return user_response_df
+
+
 
 def compute_dynamic_features(timestamp):
     us_holidays = holidays.US()
@@ -172,34 +230,17 @@ def compute_dynamic_features(timestamp):
     dynamic_features = np.concatenate([[is_holiday], time_encoded, day_encoded])
     return dynamic_features.astype(np.float32)
 
-def encode_state_features(email, response_id):
-    try:
-        conn = get_or_refresh_connection()
-        cursor = conn.cursor()
-        query = """
-            SELECT p.*
-            FROM WORKSPACE.PUBLIC.COACH_CUSTOMER_PROFILE p
-            LEFT JOIN WORKSPACE.PUBLIC.COACH_CONVERSIONS c
-            ON p.RESPONSEID = c.RESPONSE_ID
-            WHERE c.EMAIL = %s AND p.RESPONSEID = %s
-        """
-        cursor.execute(query, (email, response_id))
-        profile_df = cursor.fetch_pandas_all()
-        conversion_query = """
-            SELECT * FROM WORKSPACE.PUBLIC.COACH_CONVERSIONS
-            WHERE EMAIL = %s
-        """
-        cursor.execute(conversion_query, (email,))
-        conversions_df = cursor.fetch_pandas_all()
-        if profile_df.empty:
-            logger.error(f"No profile found for email: {email}, response_id: {response_id}")
-            return None
+
+def encode_state_features(user_df):
+    try:    
         expected_numerical_cols = ['WEIGHT', 'HEIGHT', 'AGE']
-        numerical_cols = [col for col in expected_numerical_cols if col in profile_df.columns]
+        numerical_cols = [col for col in expected_numerical_cols if col in user_df.columns]
         if not numerical_cols:
+            logger.warning("No expected numerical columns found in profile data")
             numerical_encoded = np.array([])
         else:
-            numerical_data = profile_df[numerical_cols].copy()
+            numerical_data = user_df[numerical_cols].copy()
+
             def convert_height(height):
                 if pd.isna(height) or height == 'Unknown':
                     return np.nan
@@ -215,13 +256,14 @@ def encode_state_features(email, response_id):
                 except:
                     logger.warning(f"Invalid height format: {height}")
                     return np.nan
+                
             if 'HEIGHT' in numerical_data.columns:
                 numerical_data['HEIGHT'] = numerical_data['HEIGHT'].apply(convert_height)
             numerical_data.fillna(numerical_data.mean(), inplace=True)
             numerical_min = numerical_data.min()
             numerical_max = numerical_data.max()
             denominator = numerical_max - numerical_min + 1e-6
-            numerical_encoded = ((numerical_data - numerical_min) / denominator).values[0]
+            numerical_encoded = (numerical_data - numerical_min) / denominator
 
         categorical_cols = [
             'GENDER', 'BODYTYPE', 'BODYFAT', 'DIET', 'DIETRESTRICTIONS',
@@ -229,56 +271,40 @@ def encode_state_features(email, response_id):
             'ACTIVITY', 'INTENDEDUSE', 'FREQUENCY', 'MIXTIMING', 'HEALTHCONCERNS'
         ]
         categorical_dfs = []
-        available_categorical_cols = [col for col in categorical_cols if col in profile_df.columns]
+        available_categorical_cols = [col for col in categorical_cols if col in user_df.columns]
         
         for col in available_categorical_cols:
             features = set()
-            for values in profile_df[col].dropna():
+            for values in user_df[col].dropna():
                 for feature in [v.strip() for v in str(values).split(',') if v.strip()]:
                     features.add(feature)
             if features:
                 features = sorted(features)
-                dct = {f"{col}_{feature}": [1 if feature in str(values).split(',') else 0 for values in profile_df[col]] for feature in features}
-                categorical_dfs.append(pd.DataFrame(dct, index=profile_df.index))
-        categorical_combined = pd.concat(categorical_dfs, axis=1) if categorical_dfs else pd.DataFrame(index=profile_df.index)
+                logger.info(f"Column {col} has features: {features}")
+                dct = {f"{col}_{feature}": [1 if feature in str(values).split(',') else 0 for values in user_df[col]] for feature in features}
+                categorical_dfs.append(pd.DataFrame(dct, index=user_df.index))
+        categorical_combined = pd.concat(categorical_dfs, axis=1) if categorical_dfs else pd.DataFrame(index=user_df.index)
         
-        history = []
-        if not conversions_df.empty:
-            history.append(len(conversions_df))
-            price_cols = [col for col in conversions_df.columns if 'PRICE' in col.upper()]
-            history.append(conversions_df[price_cols[0]].sum() if price_cols else 0)
-            date_cols = [col for col in conversions_df.columns if any(date_word in col.upper() for date_word in ['CREATE', 'DATE', 'TIME'])]
-            if date_cols:
-                try:
-                    max_date = pd.to_datetime(conversions_df[date_cols[0]]).max()
-                    days_since = (datetime.utcnow() - max_date).days
-                    history.append(days_since)
-                except:
-                    history.append(0)
-            else:
-                history.append(0)
-        else:
-            history = [0, 0, 0]
 
+        # Compute dynamic features using CREATEDON timestamp
         createdon_col = 'CREATEDON'
-        if createdon_col in profile_df.columns and not pd.isna(profile_df[createdon_col].iloc[0]):
-            createdon = pd.to_datetime(profile_df[createdon_col].iloc[0])
+        if createdon_col in user_df.columns and not pd.isna(user_df[createdon_col].iloc[0]):
+            createdon = pd.to_datetime(user_df[createdon_col].iloc[0])
         else:
             createdon = datetime.now()
             logger.warning(f"No valid CREATEDON found; using current time: {createdon}")
         dynamic_part = compute_dynamic_features(createdon)
-
-        numerical_part = numerical_encoded if len(numerical_encoded) > 0 else np.array([])
+        logger.info(f"Dynamic features length: {len(dynamic_part)}")
+        numerical_part = numerical_encoded.values[0] if len(numerical_encoded) > 0 else np.array([])
         categorical_part = categorical_combined.values[0] if len(categorical_combined) > 0 else np.array([])
-        history_part = np.array(history, dtype=np.float32)
-
-        state_parts = [part for part in [numerical_part, categorical_part, history_part, dynamic_part] if len(part) > 0]
+        
+        logger.info(f"Numerical features: {len(numerical_part)}, Categorical features: {len(categorical_part)}, Dynamic features: {len(dynamic_part)}")
+        state_parts = [part for part in [numerical_part, categorical_part, dynamic_part] if len(part) > 0]
         if state_parts:
-            state = np.concatenate(state_parts).astype(np.float32)
+            state = np.concatenate(state_parts, dtype=np.float32)
         else:
             logger.error("No valid state features could be extracted")
             return None
-
         expected_dim = 120
         if len(state) != expected_dim:
             logger.warning(f"State dimension is {len(state)}, expected {expected_dim}. Padding/truncating...")
@@ -287,9 +313,12 @@ def encode_state_features(email, response_id):
             else:
                 state = state[:expected_dim]
         return state
+
     except Exception as e:
-        logger.error(f"State encoding error: {str(e)}")
+        logger.error(f"State encoding error: {str(e)}\n{traceback.format_exc()}")
         return None
+    
+
 
 
 def format_recommendation(action, variant_ids, categories):

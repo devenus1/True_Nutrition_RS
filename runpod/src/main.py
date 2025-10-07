@@ -15,7 +15,7 @@ from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from threading import Lock
-from config import settings
+
 import re
 import traceback
 import cvxpy as cp
@@ -42,13 +42,14 @@ import holidays  # For US holidays
 import os
 from dotenv import load_dotenv
 import redis
+# from src.config import settings
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        RotatingFileHandler("/app/logs/application.log", maxBytes=5*1024*1024, backupCount=7),
+        RotatingFileHandler("logs/application.log", maxBytes=5*1024*1024, backupCount=7),
         logging.StreamHandler()
     ]
 )
@@ -75,7 +76,7 @@ def get_snowflake_connection(max_retries=3, retry_delay=30):
             # Load RSA private key directly from environment variable
             private_key_str = os.getenv("rsa_key_coach_snow")
             if not private_key_str:
-                raise ValueError("❌ rsa_key_coach_snow not found in environment variables.")
+                raise ValueError(" rsa_key_coach_snow not found in environment variables.")
 
             # Convert string with "\n" into proper PEM format
             private_key_bytes = private_key_str.encode().replace(b"\\n", b"\n")
@@ -101,18 +102,18 @@ def get_snowflake_connection(max_retries=3, retry_delay=30):
                 database=os.getenv("SNOWFLAKE_DATABASE"),
                 schema=os.getenv("SNOWFLAKE_SCHEMA"),
             )
-            logger.info("✅ Snowflake connection established successfully.")
+            logger.info(" Snowflake connection established successfully.")
             return conn
 
         except snowflake.connector.errors.DatabaseError as e:
             err_msg = str(e)
-            logger.warning(f"❌ Snowflake connection failed (attempt {attempt}): {err_msg}")
+            logger.warning(f"Snowflake connection failed (attempt {attempt}): {err_msg}")
             if "JWT token is invalid" in err_msg or "Failed to authenticate" in err_msg:
                 if attempt < max_retries:
-                    logger.info(f"🔁 Waiting {retry_delay} seconds before retrying...")
+                    logger.info(f" Waiting {retry_delay} seconds before retrying...")
                     time.sleep(retry_delay)
                 else:
-                    logger.error("❌ Max retries exceeded. Could not connect to Snowflake.")
+                    logger.error("Max retries exceeded. Could not connect to Snowflake.")
                     raise
             else:
                 raise
@@ -216,7 +217,7 @@ async def startup_event():
         state_dim = 120 
         action_dim = len(variant_ids)  # Number of variants for action space
         actor = CSACActor(state_dim=state_dim, action_dim=action_dim)
-        with open('/app/models/improved_csac_actor.pth', 'rb') as f:
+        with open('improved_csac_actor.pth', 'rb') as f:
             state_dict = torch.load(f, map_location=torch.device('cpu'))
             actor.load_state_dict(state_dict)
         actor.eval()  # Set to evaluation mode
@@ -486,11 +487,23 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing token",
         )
+    
+
+
 
 @app.get("/get-recommendations/{response_id}")
 async def get_recommendations(response_id: str, credentials: HTTPAuthorizationCredentials = Depends(verify_token)):
     user_email, user_name, survey_date = None, None, None
-    
+
+    # try:
+        
+    logger.info(f"Fetching recommendations for response_id: {response_id}")
+
+    recommendations = get_from_cache(response_id)
+    if recommendations:
+        logger.info(f"Cache hit for response_id: {response_id}")
+        return recommendations
+
     try:
 
         
@@ -529,26 +542,53 @@ async def get_recommendations(response_id: str, credentials: HTTPAuthorizationCr
         action = [float(x) for x in action]
         recommendation = format_recommendation(action, variant_ids, categories)
 
-        # Extract profile from Typeform for response
+        # # Extract profile from Typeform for response
+        # profile_list = [
+        #     {
+        #         "gender": typeform_item.get("GENDER"),
+        #         "age": typeform_item.get("AGE"),
+        #         "height_inches": typeform_item.get("HEIGHT"),
+        #         "weight": typeform_item.get("WEIGHT"),
+        #         "body_type": typeform_item.get("BODYTYPE"),
+        #         "body_fat": typeform_item.get("BODYFAT"),
+        #         "diet": typeform_item.get("DIET"),
+        #         "diet_restrictions": typeform_item.get("DIETRESTRICTIONS"),
+        #         "macros": typeform_item.get("MACROS"),
+        #         "goal_primary": typeform_item.get("PRIMARYGOAL"),
+        #         "goal_secondary": typeform_item.get("SECONDARYGOAL"),
+        #         "activity": typeform_item.get("ACTIVITY"),
+        #         "activity_level": typeform_item.get("ACTIVITYLEVEL"),
+        #         "mix_intended_use": typeform_item.get("INTENDEDUSE"),
+        #         "mix_frequency": typeform_item.get("FREQUENCY"),
+        #         "mix_timing": typeform_item.get("MIXTIMING"),
+        #         "health_issues": typeform_item.get("HEALTHCONCERNS"),
+        #     }
+        # ]
+
+        # Extract profile from the processed DataFrame
+        profile_data = user_df.iloc[0]  # Get first row
         profile_list = [
             {
-                "gender": typeform_item.get("GENDER"),
-                "age": typeform_item.get("AGE"),
-                "height_inches": typeform_item.get("HEIGHT"),
-                "weight": typeform_item.get("WEIGHT"),
-                "body_type": typeform_item.get("BODYTYPE"),
-                "body_fat": typeform_item.get("BODYFAT"),
-                "diet": typeform_item.get("DIET"),
-                "diet_restrictions": typeform_item.get("DIETRESTRICTIONS"),
-                "macros": typeform_item.get("MACROS"),
-                "goal_primary": typeform_item.get("PRIMARYGOAL"),
-                "goal_secondary": typeform_item.get("SECONDARYGOAL"),
-                "activity": typeform_item.get("ACTIVITY"),
-                "activity_level": typeform_item.get("ACTIVITYLEVEL"),
-                "mix_intended_use": typeform_item.get("INTENDEDUSE"),
-                "mix_frequency": typeform_item.get("FREQUENCY"),
-                "mix_timing": typeform_item.get("MIXTIMING"),
-                "health_issues": typeform_item.get("HEALTHCONCERNS"),
+                "gender": profile_data.get("GENDER"),
+                # "age": profile_data.get("AGE"),
+                # "height_inches": profile_data.get("HEIGHT"),
+                # "weight": profile_data.get("WEIGHT"),
+                "age": int(profile_data.get("AGE")) if pd.notna(profile_data.get("AGE")) else None,
+                "height_inches": int(profile_data.get("HEIGHT")) if pd.notna(profile_data.get("HEIGHT")) else None,
+                "weight": float(profile_data.get("WEIGHT")) if pd.notna(profile_data.get("WEIGHT")) else None,
+                "body_type": profile_data.get("BODYTYPE"),
+                "body_fat": profile_data.get("BODYFAT"),
+                "diet": profile_data.get("DIET"),
+                "diet_restrictions": profile_data.get("DIETRESTRICTIONS"),
+                "macros": profile_data.get("MACROS"),
+                "goal_primary": profile_data.get("PRIMARYGOAL"),
+                "goal_secondary": profile_data.get("SECONDARYGOAL"),
+                "activity": profile_data.get("ACTIVITY"),
+                "activity_level": profile_data.get("ACTIVITYLEVEL"),
+                "mix_intended_use": profile_data.get("INTENDEDUSE"),
+                "mix_frequency": profile_data.get("FREQUENCY"),
+                "mix_timing": profile_data.get("MIXTIMING"),
+                "health_issues": profile_data.get("HEALTHCONCERNS"),
             }
         ]
 
@@ -564,13 +604,26 @@ async def get_recommendations(response_id: str, credentials: HTTPAuthorizationCr
 
         recommendations = jsonable_encoder(recommendations_dict)
 
+        store_in_cache(response_id, recommendations)
+
         return recommendations
 
     except HTTPException as e:
-        raise e
+            raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+            raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
+
+
+    # except Exception as e:
+    #     logger.error(f"An unexpected error occurred for response_id: {response_id}: {traceback.format_exc()}"
+    #     )
+    #     log_error_in_snowflake(response_id, user_email, 500, f"An unexpected error occurred: {e}")
+    #     raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+
+        
+
+   
 @app.get("/")
 async def root():
     return {"message": "Get Recommendations"}
