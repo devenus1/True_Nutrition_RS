@@ -41,7 +41,6 @@ redis_client = None
 import redis
 redis_client = redis.StrictRedis(host=os.getenv('REDIS_HOST', '127.0.0.1'), port=6379, db=0)
 
-
 def get_from_cache(response_id):
     try:
         cached_data = redis_client.get(response_id)

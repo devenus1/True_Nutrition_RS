@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libffi-dev \
     git \
+    redis-server \ 
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage caching
@@ -36,5 +37,16 @@ RUN pip install --no-cache-dir runpod
 # Expose port for API
 EXPOSE 8080
 
+# Expose Redis port 
+EXPOSE 6379
+
 # Set the command to run the handler.py which starts the Runpod serverless worker
-CMD ["python", "-u", "./src/handler.py"]
+# CMD ["python", "-u", "./src/handler.py"]
+
+#Copy startup script and make it executable
+COPY startup.sh .
+RUN chmod +x startup.sh
+
+
+# Set the command to run the startup script instead of handler.py directly 
+CMD ["./startup.sh"]
